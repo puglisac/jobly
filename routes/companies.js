@@ -2,7 +2,7 @@ const express = require("express");
 const jsonschema = require("jsonschema");
 const Company = require("../models/company");
 const companySchema = require("../schema/companySchema.json");
-const updateCompanySchema = require("../schema/updateCompanySchema.json");
+// const updateCompanySchema = require("../schema/updateCompanySchema.json");
 const { json } = require("express");
 const router = new express.Router();
 const ExpressError = require("../helpers/expressError");
@@ -54,15 +54,11 @@ router.post("/", async function(req, res, next) {
         let error = new ExpressError(listOfErrors, 400);
         return next(error);
     }
-    if (await Company.getById(req.body.handle)) {
-        const e = new ExpressError(`Company with handle ${req.body.handle} already exists`, 400)
-        return next(e);
-    }
     try {
         let newCompany = await Company.create(req.body.handle, req.body.name, req.body.num_employees, req.body.description, req.body.logo_url);
         return res.json(newCompany);
     } catch (e) {
-
+        console.log("bullshit")
         return next(e)
     }
 

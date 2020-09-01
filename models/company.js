@@ -54,9 +54,13 @@ class Company {
     /** create a company: returns company */
 
     static async create(handle, name, num_employees, description, logo_url) {
-
-        await db.query(`INSERT INTO companies (handle, name, num_employees, description, logo_url) VALUES ($1, $2, $3, $4, $5)`, [handle, name, num_employees, description, logo_url]);
+        try {
+            await db.query(`INSERT INTO companies (handle, name, num_employees, description, logo_url) VALUES ($1, $2, $3, $4, $5)`, [handle, name, num_employees, description, logo_url]);
+        } catch (e) {
+            console.log(e);
+        }
         return new Company(handle, name, num_employees, description, logo_url);
+
     }
 
     /** save company to db */
