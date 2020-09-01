@@ -58,7 +58,7 @@ router.post("/", async function(req, res, next) {
         let newCompany = await Company.create(req.body.handle, req.body.name, req.body.num_employees, req.body.description, req.body.logo_url);
         return res.json(newCompany);
     } catch (e) {
-        console.log("bullshit")
+
         return next(e)
     }
 
