@@ -18,7 +18,7 @@ class Company {
         return result.rows.map(c => new Company(c.handle, c.name, c.num_employes, c.description, c.logo_url));
     }
 
-    /** get dog by id: returns dog */
+    /** get company by handle: returns company */
 
     static async getById(handle) {
         const result = await db.query(
@@ -31,29 +31,28 @@ class Company {
         return new Company(c.handle, c.name, c.num_employes, c.description, c.logo_url);
     }
 
-    /** create a dog: returns dog */
+    /** create a company: returns company */
 
-    static async create(name, age) {
-        const result = await db.query(
-            `INSERT INTO dogs (name, age)
-        VALUES ($1, $2) RETURNING id`, [name, age]);
+    static async create(handle, name, num_employees, description, logo_url) {
+        await db.query(
+            `INSERT INTO dogs (handle, name, num_employees, description, logo_url)
+        VALUES ($1, $2, $3, $4, $5)`, [handle, name, num_employees, description, logo_url]);
 
-        let { id } = result.rows[0];
-        return new Dog(id, name, age);
+        return new Company(handle, name, num_employees, description, logo_url);
     }
 
-    /** save dog to db */
+    /** save company to db */
 
     async save() {
         await db.query(
-            `UPDATE dogs SET name=$1, age=$2 WHERE id = $3`, [this.name, this.age, this.id]);
+            `UPDATE companies SET name=$1, num_employees=$2, description=$3, logo_url=$4  WHERE handle = $5`, [this.name, this.num_employees, this.description, this.logo_url, this.handle]);
     }
 
-    /** delete dog */
+    /** delete company */
 
     async remove() {
         await db.query(
-            `DELETE FROM dogs WHERE id = $1`, [this.id]);
+            `DELETE FROM companies WHERE handle = $1`, [this.handle]);
     }
 }
 
