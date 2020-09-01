@@ -2,7 +2,7 @@ const express = require("express");
 const jsonschema = require("jsonschema");
 const Company = require("../models/company");
 const companySchema = require("../schema/companySchema.json");
-// const updateCompanySchema = require("../schema/updateCompanySchema.json");
+const updateCompanySchema = require("../schema/updateCompanySchema.json");
 const { json } = require("express");
 const router = new express.Router();
 const ExpressError = require("../helpers/expressError");
@@ -10,7 +10,8 @@ const ExpressError = require("../helpers/expressError");
 
 router.get("/", async function(req, res, next) {
     try {
-        if (req.query) {
+
+        if (Object.keys(req.query).length != 0) {
             const r = req.query;
             let search, min, max;
             if (r.search) {
@@ -23,10 +24,10 @@ router.get("/", async function(req, res, next) {
                 max = r.max_employees
             }
             let companies = await Company.search(search, min, max);
-            return res.json(companies);
+            return res.json({ companies: companies });
         }
         let companies = await Company.getAll();
-        return res.json(companies);
+        return res.json({ companies: companies });
     } catch (e) {
         return next(e)
     }
@@ -38,7 +39,7 @@ router.get("/", async function(req, res, next) {
 router.get("/:handle", async function(req, res, next) {
     try {
         let company = await Company.getById(req.params.handle);
-        return res.json(company);
+        return res.json({ company: company });
     } catch (e) {
         return next(e);
     }
@@ -56,7 +57,7 @@ router.post("/", async function(req, res, next) {
     }
     try {
         let newCompany = await Company.create(req.body.handle, req.body.name, req.body.num_employees, req.body.description, req.body.logo_url);
-        return res.json(newCompany);
+        return res.status(201).json({ company: newCompany });
     } catch (e) {
 
         return next(e)
@@ -70,7 +71,7 @@ router.delete("/:handle", async function(req, res, next) {
     try {
         let company = await Company.getById(req.params.handle);
         await company.remove();
-        return res.json("deleted");
+        return res.json({ message: "company deleted" });
     } catch (e) {
         return next(e)
     }
@@ -81,7 +82,7 @@ router.delete("/:handle", async function(req, res, next) {
 /** age dog: returns new age */
 
 router.patch("/:handle", async function(req, res, next) {
-    const isValid = await jsonschema.validate(req.body, companySchema);
+    const isValid = await jsonschema.validate(req.body, updateCompanySchema);
     if (!isValid.valid) {
         let listOfErrors = isValid.errors.map(error => error.stack);
         let error = new ExpressError(listOfErrors, 400);
@@ -97,7 +98,7 @@ router.patch("/:handle", async function(req, res, next) {
         }
         company.save();
         const savedCompany = await Company.getById(req.params.handle);
-        return res.json(savedCompany);
+        return res.json({ company: savedCompany });
     } catch (e) {
         return next(e);
     }

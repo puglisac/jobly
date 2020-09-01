@@ -12,10 +12,7 @@
         "logo_url": "https://image.shutterstock.com/image-vector/internet-design-logoicon-template-260nw-1037418430.jpg"
     }],
     "required": [
-        "name",
-        "num_employees",
-        "description",
-        "logo_url"
+
     ],
     "properties": {
         "name": {

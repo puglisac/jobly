@@ -16,27 +16,24 @@ class Company {
     static async getAll() {
         const result = await db.query(
             `SELECT * FROM companies`);
-        return result.rows.map(c => new Company(c.handle, c.name, c.num_employes, c.description, c.logo_url));
+        if (result.rows.length === 0) {
+            throw new ExpressError("No companies", 400)
+        };
+        return result.rows.map(c => new Company(c.handle, c.name, c.num_employees, c.description, c.logo_url));
     }
 
     static async search(str = "", min = 0, max = Math.pow(2, 31) - 1) {
-            console.log(max);
-            if (max < min) {
-                return new ExpressError("max_employees cannot be less than min_employees", 400);
-            }
-            const result = await db.query(
-                `SELECT * FROM companies WHERE 
-                (handle ILIKE $1 OR name ILIKE $1) AND (num_employees BETWEEN $2 AND $3)`, [`%${str}%`, min, max]);
-            if (result.rows.length === 0) {
-                return new ExpressError("no results", 400)
-            };
-            return result.rows.map(c => new Company(c.handle, c.name, c.num_employees, c.description, c.logo_url));
+        if (max < min) {
+            throw new ExpressError("max_employees cannot be less than min_employees", 400);
         }
-        // static async searchEmp(max = Infinity, min = 0) {
-        //     const result = await db.query(
-        //         `SELECT * FROM companies WHERE num_employees BETWEEN $1 and $2`, [min, max]);
-        //     return result.rows.map(c => new Company(c.handle, c.name, c.num_employes, c.description, c.logo_url));
-        // }
+        const result = await db.query(
+            `SELECT * FROM companies WHERE 
+                (handle ILIKE $1 OR name ILIKE $1) AND (num_employees BETWEEN $2 AND $3)`, [`%${str}%`, min, max]);
+        if (result.rows.length === 0) {
+            throw new ExpressError("no results", 400)
+        };
+        return result.rows.map(c => new Company(c.handle, c.name, c.num_employees, c.description, c.logo_url));
+    }
 
     /** get company by handle: returns company */
 
@@ -44,7 +41,7 @@ class Company {
         const result = await db.query(
             `SELECT * FROM companies WHERE handle = $1`, [handle]);
         if (result.rows.length === 0) {
-            throw new Error(`No such company: ${handle}`);
+            throw new ExpressError(`No such company: ${handle}`, 404);
         }
 
         let c = result.rows[0];
