@@ -103,7 +103,7 @@ describe("jobs Routes Test", function() {
                 }
             });
         });
-        test("return 400 if not found ", async function() {
+        test("return 404 if not found ", async function() {
             const resp = await request(app)
                 .get("/jobs/0")
 
