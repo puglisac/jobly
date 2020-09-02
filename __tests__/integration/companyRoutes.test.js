@@ -4,7 +4,7 @@ const app = require("../../app");
 const db = require("../../db");
 const Company = require("../../models/company")
 
-describe("Message Routes Test", function() {
+describe("companies Routes Test", function() {
     beforeEach(async function() {
         await db.query("DELETE FROM companies");
 
@@ -18,7 +18,6 @@ describe("Message Routes Test", function() {
 
     });
 
-    /** POST /auth/register => token  */
 
     describe("get /", function() {
         test("can get all companies", async function() {
