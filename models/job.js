@@ -49,7 +49,7 @@ class Job {
         return new Job(j.id, j.title, j.salary, j.equity, j.company_handle, j.date_posted);
     }
 
-    /** create a company: returns company */
+    /** create a job: returns job */
 
     static async create(title, salary, equity, company_handle) {
         try {
@@ -60,20 +60,19 @@ class Job {
             if (e.code == 23503) {
                 throw new ExpressError(`Company with handle: ${company_handle} does not exists`, 400)
             }
-            console.log(e);
             throw new Error("Something went wrong");
         }
 
     }
 
-    /** save company to db */
+    /** save job to db */
 
     async save() {
         await db.query(
             `UPDATE jobs SET title=$1, salary=$2, equity=$3, company_handle=$4 WHERE id = $5`, [this.title, this.salary, this.equity, this.company_handle, this.id]);
     }
 
-    /** delete company */
+    /** delete job */
 
     async remove() {
         await db.query(

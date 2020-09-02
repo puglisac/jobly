@@ -2,7 +2,7 @@ const express = require("express");
 const jsonschema = require("jsonschema");
 const Job = require("../models/job");
 const jobSchema = require("../schema/jobSchema.json");
-// const updateCompanySchema = require("../schema/updateCompanySchema.json");
+const updateJobSchema = require("../schema/updateJobSchema.json")
 const { json } = require("express");
 const router = new express.Router();
 const ExpressError = require("../helpers/expressError");
@@ -48,7 +48,7 @@ router.get("/:id", async function(req, res, next) {
 
 });
 
-/** create company */
+/** create job */
 
 router.post("/", async function(req, res, next) {
     const isValid = await jsonschema.validate(req.body, jobSchema);
@@ -67,7 +67,7 @@ router.post("/", async function(req, res, next) {
 
 });
 
-/** delete company from {handle}; returns "deleted" */
+/** delete job from {id}; returns "deleted" */
 
 router.delete("/:id", async function(req, res, next) {
     try {
@@ -81,10 +81,10 @@ router.delete("/:id", async function(req, res, next) {
 });
 
 
-/** age dog: returns new age */
+/** updates a job */
 
 router.patch("/:id", async function(req, res, next) {
-    const isValid = await jsonschema.validate(req.body, jobSchema);
+    const isValid = await jsonschema.validate(req.body, updateJobSchema);
     if (!isValid.valid) {
         let listOfErrors = isValid.errors.map(error => error.stack);
         let error = new ExpressError(listOfErrors, 400);

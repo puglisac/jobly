@@ -79,7 +79,7 @@ router.delete("/:handle", async function(req, res, next) {
 });
 
 
-/** age dog: returns new age */
+/** updates a company */
 
 router.patch("/:handle", async function(req, res, next) {
     const isValid = await jsonschema.validate(req.body, updateCompanySchema);

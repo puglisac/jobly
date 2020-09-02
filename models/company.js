@@ -2,12 +2,13 @@ const db = require("../db");
 const ExpressError = require("../helpers/expressError");
 
 class Company {
-    constructor(handle, name, num_employees, description, logo_url) {
+    constructor(handle, name, num_employees, description, logo_url, jobs) {
         this.handle = handle;
         this.name = name;
         this.num_employees = num_employees;
         this.description = description;
-        this.logo_url = logo_url
+        this.logo_url = logo_url;
+        this.jobs = jobs;
     }
 
 
@@ -39,13 +40,19 @@ class Company {
 
     static async getById(handle) {
         const result = await db.query(
-            `SELECT * FROM companies WHERE handle = $1`, [handle]);
+            `SELECT * FROM companies FULL JOIN jobs ON handle = company_handle WHERE handle = $1`, [handle]);
         if (result.rows.length === 0) {
             throw new ExpressError(`No such company: ${handle}`, 404);
         }
 
         let c = result.rows[0];
-        return new Company(c.handle, c.name, c.num_employees, c.description, c.logo_url);
+        const jobs = [];
+        if (c.title) {
+            for (let j of result.rows) {
+                jobs.push({ id: j.id, title: j.title, salary: j.salary, equity: j.equity, date_posted: j.date_posted });
+            }
+        }
+        return new Company(c.handle, c.name, c.num_employees, c.description, c.logo_url, jobs);
     }
 
     /** create a company: returns company */
