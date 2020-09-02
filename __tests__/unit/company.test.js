@@ -42,17 +42,7 @@ describe("Test Company class", function() {
             logo_url: "https://www.logolynx.com/images/logolynx/s_d2/d22fb987843361c45336b768a27ce7f3.png"
         });
     });
-    test("can get company by handle", async function() {
-        let c = await Company.getById("test");
 
-        expect(c).toEqual({
-            handle: "test",
-            name: "test company",
-            num_employees: 200,
-            description: "Testy",
-            logo_url: "https://testurl.com/testimg.jpg"
-        });
-    });
 
     test("can get company by handle", async function() {
         let c = await Company.getById("test");
@@ -62,7 +52,8 @@ describe("Test Company class", function() {
             name: "test company",
             num_employees: 200,
             description: "Testy",
-            logo_url: "https://testurl.com/testimg.jpg"
+            logo_url: "https://testurl.com/testimg.jpg",
+            jobs: []
         });
     });
 
