@@ -6,6 +6,7 @@ const Company = require("../../models/company")
 
 describe("companies Routes Test", function() {
     beforeEach(async function() {
+        await db.query("DELETE FROM jobs");
         await db.query("DELETE FROM companies");
 
         const c1 = await Company.create(
@@ -86,7 +87,8 @@ describe("companies Routes Test", function() {
                     name: "Test Company",
                     num_employees: 200,
                     description: "This is my test company",
-                    logo_url: "https://testurl.com/testimg.jpg"
+                    logo_url: "https://testurl.com/testimg.jpg",
+                    jobs: []
                 }
             });
         });
@@ -191,7 +193,8 @@ describe("companies Routes Test", function() {
                     name: "apple computers",
                     num_employees: 120,
                     description: "we make stuff",
-                    logo_url: "https://www.logolynx.com/images/logolynx/s_d2/d22fb987843361c45336b768a27ce7f3.png"
+                    logo_url: "https://www.logolynx.com/images/logolynx/s_d2/d22fb987843361c45336b768a27ce7f3.png",
+                    jobs: []
                 }
             });
         });
