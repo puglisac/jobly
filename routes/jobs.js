@@ -9,7 +9,6 @@ const ExpressError = require("../helpers/expressError");
 
 
 router.get("/", async function(req, res, next) {
-    console.log(req.query)
     try {
 
         if (Object.keys(req.query).length != 0) {
