@@ -54,7 +54,6 @@ class Company {
         try {
             await db.query(`INSERT INTO companies (handle, name, num_employees, description, logo_url) VALUES ($1, $2, $3, $4, $5)`, [handle, name, num_employees, description, logo_url]);
         } catch (e) {
-            console.log(e.code);
             if (e.code == 23505) {
                 throw new ExpressError(`Company with handle: ${handle} already exists`, 400)
             }

@@ -90,7 +90,6 @@ router.patch("/:handle", async function(req, res, next) {
     }
     try {
         let company = await Company.getById(req.params.handle);
-        console.log(req.body)
         for (key in req.body) {
             if (key != 'handle') {
                 company[key] = req.body[key];
