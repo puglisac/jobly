@@ -91,7 +91,7 @@ describe("jobs Routes Test", function() {
         });
         test("can search by salary", async function() {
             const resp = await request(app)
-                .get("/jobs/?min_salary=200&max_salary=80000").send({ _token: token });
+                .get("/jobs/?min_salary=200").send({ _token: token });
             expect(resp.status).toEqual(200);
             expect(resp.body).toEqual({
                 jobs: [{
@@ -104,13 +104,13 @@ describe("jobs Routes Test", function() {
                 }]
             })
         });
-        test("can search by salary and return error for min/max", async function() {
+        test("can search by min equity", async function() {
             const resp = await request(app)
-                .get("/jobs/?min_salary=500000&max_salary=30000").send({ _token: token });
+                .get("/jobs/?min_equity=.6").send({ _token: token });
             expect(resp.status).toEqual(400);
             expect(resp.body).toEqual({
                 status: 400,
-                message: "max_salary cannot be less than min_salary"
+                message: "no results"
             })
         });
 
@@ -305,7 +305,7 @@ describe("jobs Routes Test", function() {
         });
 
     });
-    describe("patch /:id/appstate", function() {
+    describe("patch /:id/apply", function() {
         test("can update state of application ", async function() {
             await request(app)
                 .post(`/jobs/${testId}/apply`).send({
@@ -313,7 +313,7 @@ describe("jobs Routes Test", function() {
                     _token: token
                 });
             const resp = await request(app)
-                .patch(`/jobs/${testId}/appstate`).send({
+                .patch(`/jobs/${testId}/apply`).send({
                     username: "testing",
                     state: "applied",
                     _token: adminToken
@@ -325,7 +325,7 @@ describe("jobs Routes Test", function() {
         });
         test("cannot change state with incorrect info", async function() {
             const resp = await request(app)
-                .patch(`/jobs/${testId}/appstate`).send({
+                .patch(`/jobs/${testId}/apply`).send({
                     state: "interested",
                     _token: adminToken
                 });
@@ -336,7 +336,7 @@ describe("jobs Routes Test", function() {
 
         test("cannot update state if not admin", async function() {
             const resp = await request(app)
-                .patch(`/jobs/${testId}/appstate`).send({
+                .patch(`/jobs/${testId}/apply`).send({
                     username: "testing",
                     state: "applied",
                     _token: token

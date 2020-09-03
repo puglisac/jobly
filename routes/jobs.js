@@ -18,17 +18,17 @@ router.get("/", ensureLoggedIn, async function(req, res, next) {
         if (Object.keys(req.query).length != 0) {
             const r = req.query;
 
-            let search, min, max;
+            let search, min, equity;
             if (r.search) {
                 search = r.search;
             }
             if (r.min_salary) {
                 min = r.min_salary;
             }
-            if (r.max_salary) {
-                max = r.max_salary;
+            if (r.min_equity) {
+                equity = r.min_equity;
             }
-            let jobs = await Job.search(search, min, max);
+            let jobs = await Job.search(search, min, equity);
             return res.json({ jobs: jobs });
         }
         let jobs = await Job.getAll();
@@ -124,7 +124,7 @@ router.post("/:id/apply", ensureLoggedIn, async function(req, res, next) {
     }
 
 });
-router.patch("/:id/appstate", ensureAdmin, async function(req, res, next) {
+router.patch("/:id/apply", ensureAdmin, async function(req, res, next) {
     const isValid = await jsonschema.validate(req.body, updateApplySchema);
     if (!isValid.valid) {
         let listOfErrors = isValid.errors.map(error => error.stack);

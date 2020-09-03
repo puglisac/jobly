@@ -23,13 +23,11 @@ class Job {
         return result.rows.map(j => new Job(j.id, j.title, j.salary, j.equity, j.company_handle, j.date_posted));
     }
 
-    static async search(str = "", min = 0, max = Math.pow(2, 31) - 1) {
-        if (max < min) {
-            throw new ExpressError("max_salary cannot be less than min_salary", 400);
-        }
+    static async search(str = "", min = 0, equity = 0) {
+
         const result = await db.query(
             `SELECT * FROM jobs WHERE 
-                (title ILIKE $1 OR company_handle ILIKE $1) AND (salary BETWEEN $2 AND $3)`, [`%${str}%`, min, max]);
+                (title ILIKE $1 OR company_handle ILIKE $1) AND salary >= $2 AND equity >= $3`, [`%${str}%`, min, equity]);
         if (result.rows.length === 0) {
             throw new ExpressError("no results", 400)
         };
