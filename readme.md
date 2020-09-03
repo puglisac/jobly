@@ -8,23 +8,23 @@ Jobly is a job-search API.  Users can search for jobs and companies as well as a
 - **GET /companies**  
  Return the handle and name for all of the company objects. It also allows for the following query string parameters
  
-   ```
-/companies/
+ ```
+ /companies/
   body: {"_token": token}
 
  ```
 
  **search**. If the query string parameter is passed, a filtered list of handles and names are displayed based on the search term and if the name includes it.
  
-    ```
-/companies/?search=apple
+ ```
+ /companies/?search=apple
  body: {"_token": token}
  ```
  
  **min\_employees**. If the query string parameter is passed, titles and company handles are displayed that have a number of employees greater than the value of the query string parameter.
  
  ```
-/companies/?min_employees=100
+ /companies/?min_employees=100
  body: {"_token": token}
   
  ```  
@@ -33,7 +33,7 @@ Jobly is a job-search API.  Users can search for jobs and companies as well as a
 If the min_employees parameter is greater than the max_employees parameter, respond with a 400 status and a message notifying that the parameters are incorrect.
 
  ```
-/companies/?max_employees=200
+ /companies/?max_employees=200
  body: {"_token": token}
   
  ``` 
@@ -41,8 +41,8 @@ If the min_employees parameter is greater than the max_employees parameter, resp
 - **POST /companies** 
  Create a new company and return the newly created company.
  
-  ```
-/companies/
+ ```
+ /companies/
  body: { "handle": "apple",
             "name": "apple computers",
             "num_employees": 120,
@@ -55,7 +55,7 @@ If the min_employees parameter is greater than the max_employees parameter, resp
 Return a single company found by its id.
 
  ```
-/companies/apple
+ /companies/apple
  body: {"_token": token}
   
  ``` 
@@ -87,7 +87,7 @@ Remove an existing company and return a message.
 This route creates a new job and returns a new job.
 
  ```
-/jobs/
+ /jobs/
  body: {"title": "new job",
            "salary": 20000.00,
            "equity": 0.3,
@@ -99,7 +99,7 @@ This route creates a new job and returns a new job.
  Adds job to logged-in user's applications with state of application.  Accepted states: intereste, applied, accepted, rejected.
  
  ```
-/jobs/[id]/apply
+ /jobs/[id]/apply
  body: {"state":"applied", 
  		   "_token": token}
  ```
@@ -108,7 +108,7 @@ This route creates a new job and returns a new job.
  Updates state of application.  Accepted states: intereste, applied, accepted, rejected.
  
  ```
-/jobs/[id]/apply
+ /jobs/[id]/apply
  body: {"username": "user",
  			"state":"accepted", 
  			"_token": adminToken}
@@ -117,48 +117,48 @@ This route creates a new job and returns a new job.
 - **GET /jobs**  
 This route lists all the titles and company handles for all jobs, ordered by the most recently posted jobs. It  also allows for the following query string parameters.
 
-   ```
-/jobs/
-  body: {"_token": token}
+ ```
+ /jobs/
+ body: {"_token": token}
 
  ```
 
  **search**: If the query string parameter is passed, a filtered list of titles and company handles are displayed based on the search term and if the job title includes it.  
  
-  ```
-/jobs/?search=apple
+ ```
+ /jobs/?search=apple
  body: {"_token": token}
-  ```
+ ```
  
  
  **min_salary**: If the query string parameter is passed, titles and company handles are displayed that have a salary greater than the value of the query string parameter.  
-
-  ```
+ 
+ ```
  /jobs/?min_salary=40000
   body: {"_token": token}
-  ```
+ ```
  
 
  **min_equity**: If the query string parameter is passed, a list of titles and company handles are displayed that have an equity greater than the value of the query string parameter.  
  
-   ```
+ ```
  /jobs/?min_equity=0.3
   body: {"_token": token}
-  ```
+ ```
 
 - **GET /jobs/[id]**  
 This route shows information about a specific job including a key of company which is an object that contains all of the information about the company associated with it.
  
-   ```
+ ```
  /jobs/apple
   body: {"_token": token}
-  ```
+ ```
 
 - **PATCH /jobs/[id]**  
 This route updates a job by its ID and returns an the newly updated job.
 
  ```
-/jobs/[id]
+ /jobs/[id]
  body: {"title": "new title",
            "salary": 40000.00,
            "equity": 0.3,
@@ -170,7 +170,7 @@ This route updates a job by its ID and returns an the newly updated job.
 This route deletes a job and returns a message.
 
  ```
-/jobs/[id]
+ /jobs/[id]
  body: {"_token": adminToken}
  ```
 
@@ -195,8 +195,8 @@ Create a new user and return a JWT which includes the username and whether or no
 Authenticate a user and return a JSON Web Token which contains a payload with the username and is_admin values.
 
  ```
-  /users
-  body: {"username": "newuser",
+ /users
+ body: {"username": "newuser",
            "password": "password"}
  ```
 
