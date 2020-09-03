@@ -4,12 +4,14 @@ const app = require("../../app");
 const db = require("../../db");
 const Company = require("../../models/company")
 const Job = require("../../models/job")
-
+const User = require("../../models/user")
+let testId;
+let token;
+let adminToken;
 describe("jobs Routes Test", function() {
-    let testId;
     beforeEach(async function() {
         await db.query("DELETE FROM companies");
-
+        await db.query("DELETE FROM users");
         const c1 = await Company.create(
             "test",
             "Test Company",
@@ -24,13 +26,40 @@ describe("jobs Routes Test", function() {
             "test"
         );
         testId = j.id;
+        let u = await User.register(
+            "testing",
+            "123",
+            "test",
+            "user",
+            "test@test.com",
+            "https://testurl.com/testimg.jpg"
+        );
+        let admin = await User.register(
+            "admin",
+            "123",
+            "test",
+            "user",
+            "admin@test.com",
+            "https://testurl.com/testimg.jpg",
+            true
+        );
+        const res = await request(app).post("/login").send({
+            username: "testing",
+            password: "123"
+        });
+        token = res.body.token
+        const response = await request(app).post("/login").send({
+            username: "admin",
+            password: "123"
+        });
+        adminToken = response.body.token
     });
 
 
     describe("get /", function() {
         test("can get all jobs", async function() {
             const resp = await request(app)
-                .get("/jobs/")
+                .get("/jobs/").send({ _token: token });
 
             expect(resp.status).toEqual(200);
             expect(resp.body).toEqual({
@@ -47,7 +76,7 @@ describe("jobs Routes Test", function() {
 
         test("can search by name", async function() {
             const resp = await request(app)
-                .get("/jobs/?search=test")
+                .get("/jobs/?search=test").send({ _token: token });
             expect(resp.status).toEqual(200);
             expect(resp.body).toEqual({
                 jobs: [{
@@ -62,7 +91,7 @@ describe("jobs Routes Test", function() {
         });
         test("can search by salary", async function() {
             const resp = await request(app)
-                .get("/jobs/?min_salary=200&max_salary=80000")
+                .get("/jobs/?min_salary=200&max_salary=80000").send({ _token: token });
             expect(resp.status).toEqual(200);
             expect(resp.body).toEqual({
                 jobs: [{
@@ -77,11 +106,21 @@ describe("jobs Routes Test", function() {
         });
         test("can search by salary and return error for min/max", async function() {
             const resp = await request(app)
-                .get("/jobs/?min_salary=500000&max_salary=30000")
+                .get("/jobs/?min_salary=500000&max_salary=30000").send({ _token: token });
             expect(resp.status).toEqual(400);
             expect(resp.body).toEqual({
                 status: 400,
                 message: "max_salary cannot be less than min_salary"
+            })
+        });
+
+        test("return 401 if not logged in", async function() {
+            const resp = await request(app)
+                .get("/jobs/").send({ _token: null });
+            expect(resp.status).toEqual(401);
+            expect(resp.body).toEqual({
+                status: 401,
+                message: "Unauthorized"
             })
         });
     });
@@ -89,7 +128,7 @@ describe("jobs Routes Test", function() {
     describe("get /:id", function() {
         test("can get job details ", async function() {
             const resp = await request(app)
-                .get(`/jobs/${testId}`)
+                .get(`/jobs/${testId}`).send({ _token: token });
 
             expect(resp.status).toEqual(200);
             expect(resp.body).toEqual({
@@ -105,12 +144,21 @@ describe("jobs Routes Test", function() {
         });
         test("return 404 if not found ", async function() {
             const resp = await request(app)
-                .get("/jobs/0")
+                .get("/jobs/0").send({ _token: token });
 
             expect(resp.status).toEqual(404);
             expect(resp.body).toEqual({
                 "status": 404,
                 "message": `No such job with id: 0`
+            });
+        });
+        test("return 401 if not logged in", async function() {
+            const resp = await request(app)
+                .get(`/jobs/${testId}`).send({ _token: null });
+            expect(resp.status).toEqual(401);
+            expect(resp.body).toEqual({
+                status: 401,
+                message: "Unauthorized"
             });
         });
     });
@@ -121,7 +169,8 @@ describe("jobs Routes Test", function() {
                     title: "new job",
                     salary: 20000.00,
                     equity: 0.3,
-                    company_handle: "test"
+                    company_handle: "test",
+                    _token: adminToken
                 });
 
             expect(resp.status).toEqual(201);
@@ -143,18 +192,27 @@ describe("jobs Routes Test", function() {
                     title: "new job",
                     salary: 20000.00,
                     equity: 3,
-                    company_handle: "test"
+                    company_handle: "test",
+                    _token: adminToken
                 });
 
             expect(resp.status).toEqual(400);
 
         });
-
+        test("return 401 if not admin", async function() {
+            const resp = await request(app)
+                .patch("/jobs/test").send({ _token: token });
+            expect(resp.status).toEqual(401);
+            expect(resp.body).toEqual({
+                status: 401,
+                message: "Unauthorized"
+            })
+        });
     });
     describe("delete /:id", function() {
         test("can delete job ", async function() {
             const resp = await request(app)
-                .delete(`/jobs/${testId}`)
+                .delete(`/jobs/${testId}`).send({ _token: adminToken });
 
             expect(resp.status).toEqual(200);
             expect(resp.body).toEqual({
@@ -163,7 +221,7 @@ describe("jobs Routes Test", function() {
         });
         test("return 404 if not found ", async function() {
             const resp = await request(app)
-                .delete("/jobs/0")
+                .delete("/jobs/0").send({ _token: adminToken })
 
             expect(resp.status).toEqual(404);
             expect(resp.body).toEqual({
@@ -179,7 +237,8 @@ describe("jobs Routes Test", function() {
                     title: "new job title",
                     salary: 20000.00,
                     equity: .2,
-                    company_handle: "test"
+                    company_handle: "test",
+                    _token: adminToken
                 });
 
             expect(resp.status).toEqual(200);
@@ -201,7 +260,8 @@ describe("jobs Routes Test", function() {
                     title: 50,
                     salary: "lots of money",
                     equity: 90,
-                    company_handle: "test"
+                    company_handle: "test",
+                    _token: adminToken
                 });
 
             expect(resp.status).toEqual(400);

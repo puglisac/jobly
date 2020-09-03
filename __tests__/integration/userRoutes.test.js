@@ -4,7 +4,7 @@ const app = require("../../app");
 const db = require("../../db");
 const User = require("../../models/user")
 
-
+let token;
 describe("user Routes Test", function() {
     beforeEach(async function() {
         await db.query("DELETE FROM users");
@@ -17,6 +17,11 @@ describe("user Routes Test", function() {
             "test@test.com",
             "https://testurl.com/testimg.jpg"
         );
+        const res = await request(app).post("/login").send({
+            username: "testing",
+            password: "123"
+        });
+        token = res.body.token
     });
 
 
@@ -80,14 +85,8 @@ describe("user Routes Test", function() {
 
             expect(resp.status).toEqual(201);
             expect(resp.body).toEqual({
-                user: {
-                    "username": "newuser",
-                    "first_name": "new",
-                    "last_name": "name",
-                    "email": "test.user@email.com",
-                    "photo_url": "",
-                    "is_admin": true
-                }
+                token: expect.any(String)
+
             });
         });
 
@@ -110,21 +109,21 @@ describe("user Routes Test", function() {
     describe("delete /:username", function() {
         test("can delete a user ", async function() {
             const resp = await request(app)
-                .delete(`/users/testing`)
+                .delete(`/users/testing`).send({ "_token": token })
 
             expect(resp.status).toEqual(200);
             expect(resp.body).toEqual({
                 message: "user deleted"
             });
         });
-        test("return 404 if not found ", async function() {
+        test("return 401 if not authorized ", async function() {
             const resp = await request(app)
-                .delete("/users/notauser")
+                .delete("/users/notauser").send({ "_token": token })
 
-            expect(resp.status).toEqual(404);
+            expect(resp.status).toEqual(401);
             expect(resp.body).toEqual({
-                "status": 404,
-                "message": "No such user: notauser"
+                "status": 401,
+                "message": "Unauthorized"
             });
         });
     });
@@ -133,7 +132,8 @@ describe("user Routes Test", function() {
             const resp = await request(app)
                 .patch(`/users/testing`).send({
                     first_name: "new",
-                    last_name: "name"
+                    last_name: "name",
+                    "_token": token
                 });
 
             expect(resp.status).toEqual(200);
@@ -152,7 +152,8 @@ describe("user Routes Test", function() {
         test("cannot update user without correct info", async function() {
             const resp = await request(app)
                 .patch(`/users/testing`).send({
-                    is_admin: 84
+                    is_admin: 84,
+                    "_token": token
                 });
 
             expect(resp.status).toEqual(400);
