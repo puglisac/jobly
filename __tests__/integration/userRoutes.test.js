@@ -55,7 +55,8 @@ describe("user Routes Test", function() {
                     last_name: "user",
                     email: "test@test.com",
                     photo_url: "https://testurl.com/testimg.jpg",
-                    is_admin: false
+                    is_admin: false,
+                    jobs: expect.any(Array)
                 }
             });
         });
@@ -65,8 +66,8 @@ describe("user Routes Test", function() {
 
             expect(resp.status).toEqual(404);
             expect(resp.body).toEqual({
-                "status": 404,
-                "message": `No such user: notauser`
+                status: 404,
+                message: `No such user: notauser`
             });
         });
     });
@@ -74,13 +75,13 @@ describe("user Routes Test", function() {
         test("can create new user ", async function() {
             const resp = await request(app)
                 .post("/users/").send({
-                    "username": "newuser",
-                    "password": "password",
-                    "first_name": "new",
-                    "last_name": "name",
-                    "email": "test.user@email.com",
-                    "photo_url": "",
-                    "is_admin": true
+                    username: "newuser",
+                    password: "password",
+                    first_name: "new",
+                    last_name: "name",
+                    email: "test.user@email.com",
+                    photo_url: "",
+                    is_admin: true
                 });
 
             expect(resp.status).toEqual(201);
@@ -93,12 +94,12 @@ describe("user Routes Test", function() {
         test("cannot create new user without correct info", async function() {
             const resp = await request(app)
                 .post("/users/").send({
-                    "username": "newuser",
-                    "first_name": "new",
-                    "last_name": "name",
-                    "email": "test.user@email.com",
-                    "photo_url": "",
-                    "is_admin": true
+                    username: "newuser",
+                    first_name: "new",
+                    last_name: "name",
+                    email: "test.user@email.com",
+                    photo_url: "",
+                    is_admin: true
                 });
 
             expect(resp.status).toEqual(400);
@@ -122,8 +123,8 @@ describe("user Routes Test", function() {
 
             expect(resp.status).toEqual(401);
             expect(resp.body).toEqual({
-                "status": 401,
-                "message": "Unauthorized"
+                status: 401,
+                message: "Unauthorized"
             });
         });
     });
@@ -133,18 +134,19 @@ describe("user Routes Test", function() {
                 .patch(`/users/testing`).send({
                     first_name: "new",
                     last_name: "name",
-                    "_token": token
+                    _token: token
                 });
 
             expect(resp.status).toEqual(200);
             expect(resp.body).toEqual({
                 user: {
-                    "username": "testing",
-                    "first_name": "new",
-                    "last_name": "name",
-                    "email": "test@test.com",
-                    "photo_url": "https://testurl.com/testimg.jpg",
-                    "is_admin": false
+                    username: "testing",
+                    first_name: "new",
+                    last_name: "name",
+                    email: "test@test.com",
+                    photo_url: "https://testurl.com/testimg.jpg",
+                    is_admin: false,
+                    jobs: expect.any(Array)
                 }
             });
         });
@@ -153,7 +155,7 @@ describe("user Routes Test", function() {
             const resp = await request(app)
                 .patch(`/users/testing`).send({
                     is_admin: 84,
-                    "_token": token
+                    _token: token
                 });
 
             expect(resp.status).toEqual(400);

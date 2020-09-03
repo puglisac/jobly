@@ -269,6 +269,83 @@ describe("jobs Routes Test", function() {
         });
 
     });
+    describe("post /:id/apply", function() {
+        test("can apply to a job ", async function() {
+            const resp = await request(app)
+                .post(`/jobs/${testId}/apply`).send({
+                    state: "interested",
+                    _token: token
+                });
+
+            expect(resp.status).toEqual(201);
+            expect(resp.body).toEqual({
+                message: { "state": "interested" }
+            });
+        });
+        test("cannot apply to a job if not logged in ", async function() {
+            const resp = await request(app)
+                .post(`/jobs/${testId}/apply`).send({
+                    state: "interested",
+                    _token: null
+                });
+
+            expect(resp.status).toEqual(401);
+
+        });
+
+        test("cannot apply to a job without correct info", async function() {
+            const resp = await request(app)
+                .post(`/jobs/${testId}/apply`).send({
+                    state: "not interested",
+                    _token: token
+                });
+
+            expect(resp.status).toEqual(400);
+
+        });
+
+    });
+    describe("patch /:id/appstate", function() {
+        test("can update state of application ", async function() {
+            await request(app)
+                .post(`/jobs/${testId}/apply`).send({
+                    state: "interested",
+                    _token: token
+                });
+            const resp = await request(app)
+                .patch(`/jobs/${testId}/appstate`).send({
+                    username: "testing",
+                    state: "applied",
+                    _token: adminToken
+                });
+            expect(resp.status).toEqual(200);
+            expect(resp.body).toEqual({
+                message: { "state": "applied" }
+            });
+        });
+        test("cannot change state with incorrect info", async function() {
+            const resp = await request(app)
+                .patch(`/jobs/${testId}/appstate`).send({
+                    state: "interested",
+                    _token: adminToken
+                });
+
+            expect(resp.status).toEqual(400);
+
+        });
+
+        test("cannot update state if not admin", async function() {
+            const resp = await request(app)
+                .patch(`/jobs/${testId}/appstate`).send({
+                    username: "testing",
+                    state: "applied",
+                    _token: token
+                });
+            expect(resp.status).toEqual(401);
+
+        });
+
+    });
 });
 
 afterAll(async function() {

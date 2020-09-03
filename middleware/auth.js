@@ -45,7 +45,6 @@ function ensureCorrectUser(req, res, next) {
 async function ensureAdmin(req, res, next) {
     try {
         const u = await User.get(req.user.username);
-        console.log(u);
         if (u.is_admin) {
             return next();
         } else {
