@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config");
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
+const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 
 class User {
     constructor(username, first_name, last_name, email, photo_url, is_admin) {

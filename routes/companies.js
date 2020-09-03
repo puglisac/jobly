@@ -6,9 +6,10 @@ const updateCompanySchema = require("../schema/updateCompanySchema.json");
 const { json } = require("express");
 const router = new express.Router();
 const ExpressError = require("../helpers/expressError");
+const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
 
 
-router.get("/", async function(req, res, next) {
+router.get("/", ensureLoggedIn, async function(req, res, next) {
     try {
 
         if (Object.keys(req.query).length != 0) {
@@ -36,7 +37,7 @@ router.get("/", async function(req, res, next) {
 
 /** get company by handle */
 
-router.get("/:handle", async function(req, res, next) {
+router.get("/:handle", ensureLoggedIn, async function(req, res, next) {
     try {
         let company = await Company.getById(req.params.handle);
         return res.json({ company: company });
@@ -48,7 +49,7 @@ router.get("/:handle", async function(req, res, next) {
 
 /** create company */
 
-router.post("/", async function(req, res, next) {
+router.post("/", ensureAdmin, async function(req, res, next) {
     const isValid = await jsonschema.validate(req.body, companySchema);
     if (!isValid.valid) {
         let listOfErrors = isValid.errors.map(error => error.stack);
@@ -67,7 +68,7 @@ router.post("/", async function(req, res, next) {
 
 /** delete company from {handle}; returns "deleted" */
 
-router.delete("/:handle", async function(req, res, next) {
+router.delete("/:handle", ensureAdmin, async function(req, res, next) {
     try {
         let company = await Company.getById(req.params.handle);
         await company.remove();
@@ -81,7 +82,7 @@ router.delete("/:handle", async function(req, res, next) {
 
 /** updates a company */
 
-router.patch("/:handle", async function(req, res, next) {
+router.patch("/:handle", ensureAdmin, async function(req, res, next) {
     const isValid = await jsonschema.validate(req.body, updateCompanySchema);
     if (!isValid.valid) {
         let listOfErrors = isValid.errors.map(error => error.stack);

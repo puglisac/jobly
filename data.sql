@@ -27,3 +27,12 @@ CREATE TABLE users
     photo_url text,
     is_admin boolean NOT NULL DEFAULT false
 );
+
+CREATE TABLE applications
+(
+    id serial PRIMARY KEY,
+    username text REFERENCES users, 
+    job_id integer REFERENCES jobs,
+    state text NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT current_timestamp
+);

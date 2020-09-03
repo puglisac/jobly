@@ -6,9 +6,10 @@ const updateJobSchema = require("../schema/updateJobSchema.json")
 const { json } = require("express");
 const router = new express.Router();
 const ExpressError = require("../helpers/expressError");
+const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
 
 
-router.get("/", async function(req, res, next) {
+router.get("/", ensureLoggedIn, async function(req, res, next) {
     try {
 
         if (Object.keys(req.query).length != 0) {
@@ -37,7 +38,7 @@ router.get("/", async function(req, res, next) {
 
 /** get job by id */
 
-router.get("/:id", async function(req, res, next) {
+router.get("/:id", ensureLoggedIn, async function(req, res, next) {
     try {
         let job = await Job.getById(req.params.id);
         return res.json({ job: job });
@@ -49,7 +50,7 @@ router.get("/:id", async function(req, res, next) {
 
 /** create job */
 
-router.post("/", async function(req, res, next) {
+router.post("/", ensureAdmin, async function(req, res, next) {
     const isValid = await jsonschema.validate(req.body, jobSchema);
     if (!isValid.valid) {
         let listOfErrors = isValid.errors.map(error => error.stack);
@@ -68,7 +69,7 @@ router.post("/", async function(req, res, next) {
 
 /** delete job from {id}; returns "deleted" */
 
-router.delete("/:id", async function(req, res, next) {
+router.delete("/:id", ensureAdmin, async function(req, res, next) {
     try {
         let job = await Job.getById(req.params.id);
         await job.remove();
@@ -82,7 +83,7 @@ router.delete("/:id", async function(req, res, next) {
 
 /** updates a job */
 
-router.patch("/:id", async function(req, res, next) {
+router.patch("/:id", ensureAdmin, async function(req, res, next) {
     const isValid = await jsonschema.validate(req.body, updateJobSchema);
     if (!isValid.valid) {
         let listOfErrors = isValid.errors.map(error => error.stack);
