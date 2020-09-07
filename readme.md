@@ -104,7 +104,7 @@ This route creates a new job and returns a new job.
  		   "_token": token}
  ```
 
-- **PATCH /jobs/[id]/appstate**  
+- **PATCH /jobs/[id]/apply**  
  Updates state of application.  Accepted states: intereste, applied, accepted, rejected.
  
  ```

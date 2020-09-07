@@ -17,7 +17,7 @@ CREATE TABLE jobs
     date_posted timestamptz NOT NULL DEFAULT current_timestamp
 );
 
-CREATE TABLE users 
+CREATE TABLE users
 (
     username text PRIMARY KEY,
     password text NOT NULL,
@@ -28,12 +28,13 @@ CREATE TABLE users
     is_admin boolean NOT NULL DEFAULT false
 );
 
-CREATE TYPE status AS ENUM ('interested', 'applied', 'accepted', 'rejected');
+CREATE TYPE status AS ENUM
+('interested', 'applied', 'accepted', 'rejected');
 
 CREATE TABLE applications
 (
     id serial PRIMARY KEY,
-    username text REFERENCES users ON DELETE CASCADE, 
+    username text REFERENCES users ON DELETE CASCADE,
     job_id integer REFERENCES jobs ON DELETE CASCADE,
     state status,
     created_at timestamptz NOT NULL DEFAULT current_timestamp
