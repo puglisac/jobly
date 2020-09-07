@@ -17,13 +17,13 @@ router.post("/login", async function(req, res, next) {
 		const { username, password } = req.body;
 		const user = await User.get(username);
 
-		if (user) {
-			if (await User.authenticate(username, password)) {
-				let token = jwt.sign({ username }, SECRET_KEY);
-				return res.json({ token });
-			}
+		if (!user) {
+			throw new ExpressError("Invalid user/password", 400);
 		}
-		throw new ExpressError("Invalid user/password", 400);
+		if (await User.authenticate(username, password)) {
+			let token = jwt.sign({ username }, SECRET_KEY);
+			return res.json({ token });
+		}
 	} catch (err) {
 		return next(err);
 	}
