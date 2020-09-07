@@ -1,7 +1,7 @@
 const express = require("express");
-const jsonschema = require("jsonschema");
 const Job = require("../models/job");
 const Application = require("../models/application");
+const jsonValidate = require("../middleware/jsonValidate");
 const jobSchema = require("../schema/jobSchema.json");
 const updateJobSchema = require("../schema/updateJobSchema.json");
 const applySchema = require("../schema/appSchema.json");
@@ -38,13 +38,7 @@ router.get("/:id", ensureLoggedIn, async function(req, res, next) {
 
 /** create job */
 
-router.post("/", ensureAdmin, async function(req, res, next) {
-	const isValid = await jsonschema.validate(req.body, jobSchema);
-	if (!isValid.valid) {
-		let listOfErrors = isValid.errors.map((error) => error.stack);
-		let error = new ExpressError(listOfErrors, 400);
-		return next(error);
-	}
+router.post("/", ensureAdmin, jsonValidate(jobSchema), async function(req, res, next) {
 	try {
 		let newJob = await Job.create(req.body.title, req.body.salary, req.body.equity, req.body.company_handle);
 		return res.status(201).json({ job: newJob });
@@ -67,13 +61,7 @@ router.delete("/:id", ensureAdmin, async function(req, res, next) {
 
 /** updates a job */
 
-router.patch("/:id", ensureAdmin, async function(req, res, next) {
-	const isValid = await jsonschema.validate(req.body, updateJobSchema);
-	if (!isValid.valid) {
-		let listOfErrors = isValid.errors.map((error) => error.stack);
-		let error = new ExpressError(listOfErrors, 400);
-		return next(error);
-	}
+router.patch("/:id", ensureAdmin, jsonValidate(updateJobSchema), async function(req, res, next) {
 	try {
 		let job = await Job.getById(req.params.id);
 		for (key in req.body) {
@@ -87,13 +75,7 @@ router.patch("/:id", ensureAdmin, async function(req, res, next) {
 	}
 });
 // apply to a job
-router.post("/:id/apply", ensureLoggedIn, async function(req, res, next) {
-	const isValid = await jsonschema.validate(req.body, applySchema);
-	if (!isValid.valid) {
-		let listOfErrors = isValid.errors.map((error) => error.stack);
-		let error = new ExpressError(listOfErrors, 400);
-		return next(error);
-	}
+router.post("/:id/apply", ensureLoggedIn, jsonValidate(applySchema), async function(req, res, next) {
 	try {
 		let apply = await Application.create(req.user.username, req.params.id, req.body.state);
 		return res.status(201).json({ message: apply });
@@ -101,13 +83,7 @@ router.post("/:id/apply", ensureLoggedIn, async function(req, res, next) {
 		return next(e);
 	}
 });
-router.patch("/:id/apply", ensureAdmin, async function(req, res, next) {
-	const isValid = await jsonschema.validate(req.body, updateApplySchema);
-	if (!isValid.valid) {
-		let listOfErrors = isValid.errors.map((error) => error.stack);
-		let error = new ExpressError(listOfErrors, 400);
-		return next(error);
-	}
+router.patch("/:id/apply", ensureAdmin, jsonValidate(updateApplySchema), async function(req, res, next) {
 	try {
 		let apply = await Application.changeState(req.body.username, req.params.id, req.body.state);
 		return res.json({ message: apply });

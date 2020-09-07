@@ -1,6 +1,6 @@
 const express = require("express");
 const router = new express.Router();
-const jsonschema = require("jsonschema");
+const jsonValidate = require("../middleware/jsonValidate");
 const userSchema = require("../schema/userSchema.json");
 const jwt = require("jsonwebtoken");
 const ExpressError = require("../helpers/expressError");
@@ -32,13 +32,7 @@ router.post("/login", async function(req, res, next) {
 /** POST /register - register user: registers, logs in, and returns token.
  
  */
-router.post("/users", async function(req, res, next) {
-	const isValid = await jsonschema.validate(req.body, userSchema);
-	if (!isValid.valid) {
-		let listOfErrors = isValid.errors.map((error) => error.stack);
-		let error = new ExpressError(listOfErrors, 400);
-		return next(error);
-	}
+router.post("/users", jsonValidate(userSchema), async function(req, res, next) {
 	try {
 		const { username, password, first_name, last_name, email, photo_url, is_admin } = req.body;
 		await User.register(username, password, first_name, last_name, email, photo_url, is_admin);

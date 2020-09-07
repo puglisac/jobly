@@ -1,5 +1,5 @@
 const express = require("express");
-const jsonschema = require("jsonschema");
+const jsonValidate = require("../middleware/jsonValidate");
 const Company = require("../models/company");
 const companySchema = require("../schema/companySchema.json");
 const updateCompanySchema = require("../schema/updateCompanySchema.json");
@@ -35,13 +35,7 @@ router.get("/:handle", ensureLoggedIn, async function(req, res, next) {
 
 /** create company */
 
-router.post("/", ensureAdmin, async function(req, res, next) {
-	const isValid = await jsonschema.validate(req.body, companySchema);
-	if (!isValid.valid) {
-		let listOfErrors = isValid.errors.map((error) => error.stack);
-		let error = new ExpressError(listOfErrors, 400);
-		return next(error);
-	}
+router.post("/", ensureAdmin, jsonValidate(companySchema), async function(req, res, next) {
 	try {
 		let newCompany = await Company.create(
 			req.body.handle,
@@ -70,13 +64,7 @@ router.delete("/:handle", ensureAdmin, async function(req, res, next) {
 
 /** updates a company */
 
-router.patch("/:handle", ensureAdmin, async function(req, res, next) {
-	const isValid = await jsonschema.validate(req.body, updateCompanySchema);
-	if (!isValid.valid) {
-		let listOfErrors = isValid.errors.map((error) => error.stack);
-		let error = new ExpressError(listOfErrors, 400);
-		return next(error);
-	}
+router.patch("/:handle", ensureAdmin, jsonValidate(updateCompanySchema), async function(req, res, next) {
 	try {
 		let company = await Company.getById(req.params.handle);
 		for (key in req.body) {

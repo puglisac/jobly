@@ -1,5 +1,5 @@
 const express = require("express");
-const jsonschema = require("jsonschema");
+const jsonValidate = require("../middleware/jsonValidate");
 const User = require("../models/user");
 const updateUserSchema = require("../schema/updateUserSchema.json");
 const { json } = require("express");
@@ -41,13 +41,7 @@ router.delete("/:username", ensureCorrectUser, async function(req, res, next) {
 
 /** updates a job */
 
-router.patch("/:username", ensureCorrectUser, async function(req, res, next) {
-	const isValid = await jsonschema.validate(req.body, updateUserSchema);
-	if (!isValid.valid) {
-		let listOfErrors = isValid.errors.map((error) => error.stack);
-		let error = new ExpressError(listOfErrors, 400);
-		return next(error);
-	}
+router.patch("/:username", ensureCorrectUser, jsonValidate(updateUserSchema), async function(req, res, next) {
 	try {
 		let user = await User.get(req.params.username);
 		for (key in req.body) {
